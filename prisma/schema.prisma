@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+
+enum MessageStatusType {
+  SENT
+  DELIVERED
+  READ
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  username     String         @unique
+  passwordHash String
+  avatarUrl    String?
+  status       String?
+  lastSeenAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  sessions     Session[]
+  participants Participant[]
+  messages     Message[]      @relation("UserMessages")
+  statuses     MessageStatus[]
+  notifications Notification[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Conversation {
+  id        String           @id @default(cuid())
+  type      ConversationType @default(DIRECT)
+  title     String?
+  lastMessageAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  participants Participant[]
+  messages     Message[]
+}
+
+model Participant {
+  id             String        @id @default(cuid())
+  conversationId String
+  userId         String
+  role           String        @default("member")
+  joinedAt       DateTime      @default(now())
+
+  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  type           MessageType @default(TEXT)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation("UserMessages", fields: [senderId], references: [id])
+  statuses       MessageStatus[]
+  attachments    Attachment[]
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  messageId String
+  type      String
+  url       String
+  size      Int?
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id])
+
+  @@index([messageId])
+}
+
+model MessageStatus {
+  id         String            @id @default(cuid())
+  messageId  String
+  userId     String
+  status     MessageStatusType @default(SENT)
+  updatedAt  DateTime          @updatedAt
+
+  message    Message           @relation(fields: [messageId], references: [id])
+  user       User              @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  payload   Json?
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
