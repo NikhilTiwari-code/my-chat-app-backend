@@ -11,7 +11,25 @@ import { errorHandler } from "./middlewares/errorHandler";
 export const createApp = () => {
   const app = express();
 
-  app.use(cors({ origin: env.corsOrigin, credentials: true }));
+  const allowedOrigins = env.corsOrigin
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin) {
+          return callback(null, true);
+        }
+        if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error("Not allowed by CORS"));
+      },
+      credentials: true
+    })
+  );
   app.use(helmet());
   app.use(express.json({ limit: "2mb" }));
   app.use(morgan("dev"));
