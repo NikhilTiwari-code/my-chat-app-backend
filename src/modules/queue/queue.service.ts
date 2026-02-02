@@ -11,6 +11,9 @@ const failureCooldownMs = 30000;
 const QUEUE_NAME = "chat.events";
 
 export const initQueue = async () => {
+  if (!env.rabbitmqUrl) {
+    return { channel: null, queue: QUEUE_NAME } as any;
+  }
   if (lastFailureAt && Date.now() - lastFailureAt < failureCooldownMs) {
     return { channel: null, queue: QUEUE_NAME } as any;
   }

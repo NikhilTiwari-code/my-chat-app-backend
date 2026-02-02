@@ -20,7 +20,8 @@ export const env = {
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN ?? "30d",
   corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
-  rabbitmqUrl: process.env.RABBITMQ_URL ?? "amqp://localhost:5672",
+  rabbitmqUrl: process.env.RABBITMQ_URL ?? "",
+  queueEnabled: (process.env.QUEUE_ENABLED ?? "true") === "true",
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY ?? "",
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET ?? ""

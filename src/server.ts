@@ -10,9 +10,13 @@ const app = createApp();
 const server = http.createServer(app);
 
 initRealtimeGateway(server);
-startQueueConsumer().catch((error) => {
-  logger.error({ error }, "Queue consumer failed to start");
-});
+if (env.queueEnabled && env.rabbitmqUrl) {
+  startQueueConsumer().catch((error) => {
+    logger.error({ error }, "Queue consumer failed to start");
+  });
+} else {
+  logger.warn("Queue consumer disabled (RabbitMQ not configured)");
+}
 
 prisma
   .$connect()
