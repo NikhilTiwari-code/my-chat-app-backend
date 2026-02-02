@@ -23,6 +23,16 @@ prisma
   .then(() => logger.info("Prisma connected"))
   .catch((error) => logger.error({ error }, "Prisma connection failed"));
 
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error({ reason, promise }, "Unhandled Rejection");
+});
+
+process.on("uncaughtException", (error) => {
+  logger.error({ error }, "Uncaught Exception");
+  process.exit(1);
+});
+
 server.listen(env.port, "0.0.0.0", () => {
   logger.info(`Server running on port ${env.port}`);
+  logger.info(`Listening on http://0.0.0.0:${env.port}`);
 });

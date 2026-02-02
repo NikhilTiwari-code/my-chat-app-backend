@@ -43,6 +43,10 @@ export const createApp = () => {
     res.json({ status: "ok" });
   });
 
+  app.get("/", (_req, res) => {
+    res.json({ status: "ok", message: "WhatsApp Clone API" });
+  });
+
   app.use("/api", apiRouter);
 
   app.use("/docs", swaggerUi.serve, swaggerUi.setup({ openapi: "3.0.0", info: { title: "WhatsApp Clone API", version: "0.1.0" } }));
