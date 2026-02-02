@@ -15,6 +15,15 @@ export const getMe = async (req: Request, res: Response) => {
   return res.json({ user });
 };
 
+export const getAllUsers = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const users = await searchUsers("", 100);
+  return res.json({ users });
+};
+
 export const searchUsersHandler = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
