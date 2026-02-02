@@ -23,6 +23,6 @@ prisma
   .then(() => logger.info("Prisma connected"))
   .catch((error) => logger.error({ error }, "Prisma connection failed"));
 
-server.listen(env.port, () => {
+server.listen(env.port, "0.0.0.0", () => {
   logger.info(`Server running on port ${env.port}`);
 });
