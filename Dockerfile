@@ -23,6 +23,4 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-HEALTHCHECK --interval=10s --timeout=3s --start-period=30s \
-  CMD node -e "require('http').get('http://localhost:'+process.env.PORT+'/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 CMD ["node", "dist/server.js"]
