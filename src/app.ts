@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import { env } from "./config/env";
 import { apiRouter } from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
+import { logger } from "./config/logger";
 
 export const createApp = () => {
   const app = express();
@@ -17,13 +18,18 @@ export const createApp = () => {
     .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
 
+  logger.info({ allowedOrigins }, "CORS allowed origins");
+
   const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
       if (!origin) {
+        logger.debug("CORS: No origin header (allowed)");
         return callback(null, true);
       }
       const normalizedOrigin = normalizeOrigin(origin);
-      if (allowedOrigins.includes("*") || allowedOrigins.includes(normalizedOrigin)) {
+      const isAllowed = allowedOrigins.includes("*") || allowedOrigins.includes(normalizedOrigin);
+      logger.info({ origin, normalizedOrigin, isAllowed, allowedOrigins }, "CORS check");
+      if (isAllowed) {
         return callback(null, true);
       }
       return callback(null, false);
